@@ -23,11 +23,14 @@ hazards including European Winter Storms, River Floods, and Heatwaves.
 """
 
 import logging
+import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, Optional, Union
 
 import numpy as np
 import pandas as pd
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill
 
 # CLIMADA core imports
 from climada.entity import Exposures
@@ -123,17 +126,17 @@ class MultiHazardBuildingAssessment:
         # Read Excel file
         df = pd.read_excel(self.buildings_file, sheet_name="buildings")
 
+        # Rename lat/lon columns if needed (do this before validation)
+        if "lat" in df.columns and "latitude" not in df.columns:
+            df = df.rename(columns={"lat": "latitude"})
+        if "lon" in df.columns and "longitude" not in df.columns:
+            df = df.rename(columns={"lon": "longitude"})
+
         # Validate required columns
         required_cols = ["latitude", "longitude", "value"]
         missing_cols = [col for col in required_cols if col not in df.columns]
         if missing_cols:
             raise ValueError(f"Missing required columns: {missing_cols}")
-
-        # Rename lat/lon columns if needed
-        if "lat" in df.columns and "latitude" not in df.columns:
-            df = df.rename(columns={"lat": "latitude"})
-        if "lon" in df.columns and "longitude" not in df.columns:
-            df = df.rename(columns={"lon": "longitude"})
 
         # Set default impact function IDs if not provided
         for haz_type in [
@@ -145,12 +148,11 @@ class MultiHazardBuildingAssessment:
             if col_name not in df.columns:
                 df[col_name] = 1
 
-        # Create exposures
+        # Create exposures using lat/lon to construct geometry
         exposures = Exposures(
-            data=df,
             lat=df["latitude"].values,
             lon=df["longitude"].values,
-            value=df["value"].values,
+            data=df.drop(columns=["latitude", "longitude"], errors="ignore"),
             value_unit=self.value_unit,
             ref_year=self.ref_year,
             description=f"Buildings from {self.buildings_file.name}",
@@ -550,7 +552,7 @@ class MultiHazardBuildingAssessment:
         print("MULTI-HAZARD BUILDING DAMAGE ASSESSMENT SUMMARY")
         print("=" * 60)
         print(f"\nNumber of buildings: {len(self.exposures.gdf)}")
-        print(f"Total exposure value: {self.exposures.gdf['value'].sum():,.0f} USD")
+        print(f"Total exposure value: {self.exposures.gdf['value'].sum():,.0f} {self.value_unit}")
         print(f"Reference year: {self.ref_year}")
 
         total_aai = 0
@@ -570,12 +572,12 @@ class MultiHazardBuildingAssessment:
             else:
                 aai = result["total_damage"]
                 total_aai += aai
-                print(f"  Expected Annual Impact (AAI): {aai:,.0f} USD")
-                print(f"  Max damage per building: {result['damage_per_building'].max():,.0f} USD")
+                print(f"  Expected Annual Impact (AAI): {aai:,.0f} {self.value_unit}")
+                print(f"  Max damage per building: {result['damage_per_building'].max():,.0f} {self.value_unit}")
                 print(f"  Buildings affected: {np.sum(result['damage_per_building'] > 0)}")
 
         print(f"\n{'=' * 60}")
-        print(f"TOTAL EXPECTED ANNUAL IMPACT: {total_aai:,.0f} USD")
+        print(f"TOTAL EXPECTED ANNUAL IMPACT: {total_aai:,.0f} {self.value_unit}")
         print("=" * 60 + "\n")
 
     def export_results(
@@ -631,9 +633,6 @@ def create_sample_exposures(output_file: Union[str, Path] = "sample_buildings.xl
     output_file : str or Path
         Path to output Excel file.
     """
-    from openpyxl import Workbook
-    from openpyxl.styles import Font, PatternFill
-
     # Sample data for European cities
     data = {
         "building_name": [
@@ -682,8 +681,6 @@ def create_sample_exposures(output_file: Union[str, Path] = "sample_buildings.xl
 
 if __name__ == "__main__":
     # Example usage demonstration
-    import sys
-
     print("Multi-Hazard Building Damage Assessment Tool")
     print("=" * 50)
     print()
