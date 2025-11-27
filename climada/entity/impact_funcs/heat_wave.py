@@ -29,6 +29,10 @@ from climada.entity.impact_funcs.base import ImpactFunc
 
 LOGGER = logging.getLogger(__name__)
 
+# Default parameters for sigmoid impact functions
+DEFAULT_SIGMOID_MIDPOINT = 5.0  # x0: Temperature at which impact = L/2
+DEFAULT_SIGMOID_STEEPNESS = 0.5  # k: Steepness of the sigmoid curve
+
 
 class ImpfHeatwave(ImpactFunc):
     """Impact functions for heatwaves.
@@ -91,13 +95,12 @@ class ImpfHeatwave(ImpactFunc):
 
         # MDD follows a sigmoid curve
         # Impact starts at threshold and increases non-linearly
-        x0 = 5.0  # midpoint of sigmoid (50% damage at 5°C above threshold)
-        k = 0.5   # steepness of curve
-
         mdd = np.zeros(intensity.shape)
         above_threshold = intensity > temp_threshold
         temp_above = intensity[above_threshold] - temp_threshold
-        mdd[above_threshold] = 1 / (1 + np.exp(-k * (temp_above - x0)))
+        mdd[above_threshold] = 1 / (1 + np.exp(
+            -DEFAULT_SIGMOID_STEEPNESS * (temp_above - DEFAULT_SIGMOID_MIDPOINT)
+        ))
         impf.mdd = mdd
 
         impf.check()
