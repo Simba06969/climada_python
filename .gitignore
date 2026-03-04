@@ -185,3 +185,7 @@ results/
 !.github
 climada_petals/
 climada_python/
+
+# Strava app runtime files
+strava_app/strava_app.db
+strava_app/instance/
