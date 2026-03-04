@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Strava Bike Component Tracker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+          <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066l-2.084 4.116z"/>
+          <path d="M7.21 10.89L5.129 6.773H2.063L7.21 17.045 12.36 6.773H9.294L7.21 10.89z"/>
+        </svg>
+        <span>Strava Bike Tracker</span>
+      </div>
+      {% if connected %}
+      <div class="header-actions">
+        <span class="athlete-name">👤 {{ athlete_name }}</span>
+        <a href="{{ url_for('refresh') }}" class="btn btn-outline">🔄 Sync from Strava</a>
+        <form action="{{ url_for('disconnect') }}" method="post" style="display:inline">
+          <button type="submit" class="btn btn-danger"
+            onclick="return confirm('Disconnect and remove all data?')">Disconnect</button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+  </header>
+
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-container">
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    <p>Strava Bike Component Tracker &mdash; Built with Flask &amp; the Strava API</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if not connected %}
+<!-- ===== NOT CONNECTED ===== -->
+<div class="hero">
+  <div class="hero-icon">🚴</div>
+  <h1>Track Your Bike Component Usage</h1>
+  <p class="hero-sub">
+    Connect your Strava account to automatically track how many kilometres
+    you&rsquo;ve ridden since adding a component (chain, tyres, brake pads&hellip;)
+    to each of your bikes.
+  </p>
+  <ul class="feature-list">
+    <li>✅ Reads ride data &amp; bikes directly from Strava</li>
+    <li>✅ Auto-syncs every {{ sync_interval }} minutes</li>
+    <li>✅ Add any component to any bike</li>
+    <li>✅ See km ridden since installation</li>
+    <li>✅ Reset a component&rsquo;s counter after replacement</li>
+  </ul>
+  <a href="{{ url_for('auth') }}" class="btn btn-strava btn-lg">
+    Connect with Strava
+  </a>
+</div>
+
+{% else %}
+<!-- ===== CONNECTED ===== -->
+<div class="page-header">
+  <h1>Your Bikes</h1>
+  {% if last_synced %}
+    <span class="sync-time">Last synced: {{ last_synced.strftime('%d %b %Y %H:%M') }} UTC</span>
+  {% endif %}
+</div>
+
+{% if not bikes %}
+  <div class="empty-state">
+    <p>No bikes found on your Strava account.</p>
+    <p>Make sure your bikes are added in your <a href="https://www.strava.com/settings/gear" target="_blank">Strava gear settings</a>.</p>
+  </div>
+{% endif %}
+
+<div class="bikes-grid">
+{% for bike in bikes %}
+<div class="bike-card">
+  <div class="bike-header">
+    <div class="bike-title">
+      <span class="bike-icon">🚲</span>
+      <h2>{{ bike.name }}</h2>
+    </div>
+    <div class="bike-distance">
+      <span class="distance-value">{{ "%.0f"|format(bike.distance_km) }}</span>
+      <span class="distance-unit">km total</span>
+    </div>
+  </div>
+
+  <!-- Components list -->
+  {% if bike.components %}
+  <table class="components-table">
+    <thead>
+      <tr>
+        <th>Component</th>
+        <th>Installed</th>
+        <th class="km-col">km since install / reset</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for comp in bike.components %}
+    <tr>
+      <td class="comp-name">{{ comp.name }}</td>
+      <td class="comp-date">{{ comp.installed_at.strftime('%d %b %Y') }}</td>
+      <td class="comp-km">
+        <span class="km-badge {% if comp.usage_km > 2000 %}km-high{% elif comp.usage_km > 1000 %}km-medium{% endif %}">
+          {{ "%.0f"|format(comp.usage_km) }} km
+        </span>
+        {% if comp.last_reset_at %}
+          <div class="reset-note">Reset: {{ comp.last_reset_at.strftime('%d %b %Y') }}</div>
+        {% endif %}
+      </td>
+      <td class="comp-actions">
+        <form action="{{ url_for('reset_component', component_id=comp.id) }}" method="post" style="display:inline">
+          <button type="submit" class="btn btn-sm btn-warning"
+            title="Reset km counter (e.g. after replacing this component)"
+            onclick="return confirm('Reset km counter for &quot;{{ comp.name }}&quot;?\nThis records the current bike total as the new baseline.')">
+            🔁 Reset
+          </button>
+        </form>
+        <form action="{{ url_for('delete_component', component_id=comp.id) }}" method="post" style="display:inline">
+          <button type="submit" class="btn btn-sm btn-danger"
+            title="Remove this component"
+            onclick="return confirm('Delete component &quot;{{ comp.name }}&quot;?')">
+            🗑 Delete
+          </button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="no-components">No components tracked yet.</p>
+  {% endif %}
+
+  <!-- Add component inline form -->
+  <details class="add-component-details">
+    <summary class="btn btn-sm btn-add">＋ Add Component</summary>
+    <form action="{{ url_for('add_component', strava_bike_id=bike.strava_id) }}" method="post" class="add-component-form">
+      <div class="form-row">
+        <input type="text" name="name" placeholder="e.g. Chain, Tyres, Brake pads…"
+               required maxlength="200" class="form-input" />
+        <button type="submit" class="btn btn-primary">Add</button>
+      </div>
+      <p class="form-hint">
+        km counter starts from the current bike total
+        ({{ "%.0f"|format(bike.distance_km) }} km).
+      </p>
+    </form>
+  </details>
+</div>
+{% endfor %}
+</div>
+{% endif %}
+{% endblock %}

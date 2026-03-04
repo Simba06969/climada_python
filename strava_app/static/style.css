@@ -1,0 +1,370 @@
+/* =========================================================
+   Strava Bike Component Tracker – stylesheet
+   ========================================================= */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --strava-orange: #fc4c02;
+  --strava-dark:   #e33a00;
+  --bg:            #f5f5f5;
+  --card-bg:       #ffffff;
+  --text:          #1a1a1a;
+  --muted:         #6b6b6b;
+  --border:        #e0e0e0;
+  --success:       #2e7d32;
+  --warning-bg:    #fff3e0;
+  --warning-fg:    #e65100;
+  --danger:        #c62828;
+  --danger-bg:     #ffebee;
+  --info:          #1565c0;
+  --info-bg:       #e3f2fd;
+  --km-medium:     #f57c00;
+  --km-high:       #c62828;
+  --shadow:        0 2px 8px rgba(0,0,0,.1);
+  --radius:        10px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ----- Header ----- */
+header {
+  background: var(--strava-orange);
+  color: #fff;
+  padding: .75rem 1.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,.25);
+}
+
+.header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: inherit;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  flex-wrap: wrap;
+}
+
+.athlete-name {
+  font-size: .9rem;
+  opacity: .9;
+}
+
+/* ----- Main ----- */
+main {
+  flex: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+  width: 100%;
+}
+
+/* ----- Flash messages ----- */
+.flash-container { margin-bottom: 1.25rem; }
+
+.flash {
+  padding: .75rem 1rem;
+  border-radius: var(--radius);
+  margin-bottom: .5rem;
+  font-size: .9rem;
+}
+
+.flash-success { background: #e8f5e9; color: var(--success); border-left: 4px solid var(--success); }
+.flash-error   { background: var(--danger-bg); color: var(--danger); border-left: 4px solid var(--danger); }
+.flash-info    { background: var(--info-bg); color: var(--info); border-left: 4px solid var(--info); }
+.flash-warning { background: var(--warning-bg); color: var(--warning-fg); border-left: 4px solid var(--warning-fg); }
+
+/* ----- Hero (unauthenticated) ----- */
+.hero {
+  text-align: center;
+  padding: 4rem 1rem;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; }
+
+.hero h1 {
+  font-size: 2rem;
+  margin-bottom: .75rem;
+  color: var(--strava-orange);
+}
+
+.hero-sub {
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.feature-list {
+  list-style: none;
+  text-align: left;
+  display: inline-block;
+  margin-bottom: 2rem;
+}
+
+.feature-list li { padding: .25rem 0; }
+
+/* ----- Buttons ----- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .45rem .9rem;
+  border: none;
+  border-radius: 6px;
+  font-size: .875rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: filter .15s;
+  white-space: nowrap;
+}
+
+.btn:hover { filter: brightness(.9); }
+
+.btn-strava {
+  background: var(--strava-orange);
+  color: #fff;
+}
+
+.btn-lg {
+  padding: .75rem 2rem;
+  font-size: 1.05rem;
+}
+
+.btn-outline {
+  background: rgba(255,255,255,.15);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.5);
+}
+
+.btn-primary  { background: #1976d2; color: #fff; }
+.btn-warning  { background: #f57c00; color: #fff; }
+.btn-danger   { background: var(--danger); color: #fff; }
+.btn-add      { background: #388e3c; color: #fff; margin-top: .75rem; cursor: pointer; }
+
+.btn-sm { padding: .3rem .6rem; font-size: .8rem; }
+
+/* ----- Page header ----- */
+.page-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.page-header h1 { font-size: 1.5rem; }
+
+.sync-time { font-size: .8rem; color: var(--muted); }
+
+/* ----- Empty state ----- */
+.empty-state {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  text-align: center;
+  color: var(--muted);
+}
+
+.empty-state a { color: var(--strava-orange); }
+
+/* ----- Bikes grid ----- */
+.bikes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+  gap: 1.25rem;
+}
+
+@media (max-width: 540px) {
+  .bikes-grid { grid-template-columns: 1fr; }
+}
+
+/* ----- Bike card ----- */
+.bike-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+}
+
+.bike-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: .5rem;
+}
+
+.bike-title {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.bike-icon { font-size: 1.5rem; }
+
+.bike-title h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.bike-distance {
+  text-align: right;
+}
+
+.distance-value {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--strava-orange);
+}
+
+.distance-unit {
+  font-size: .75rem;
+  color: var(--muted);
+  display: block;
+}
+
+/* ----- Components table ----- */
+.components-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: .75rem;
+  font-size: .875rem;
+}
+
+.components-table th {
+  background: #f9f9f9;
+  padding: .4rem .6rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--muted);
+  border-bottom: 2px solid var(--border);
+}
+
+.components-table td {
+  padding: .5rem .6rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.components-table tr:last-child td { border-bottom: none; }
+
+.comp-name  { font-weight: 600; }
+.comp-date  { color: var(--muted); white-space: nowrap; }
+.km-col     { text-align: center; }
+.comp-km    { text-align: center; }
+
+.km-badge {
+  display: inline-block;
+  padding: .2rem .55rem;
+  border-radius: 20px;
+  font-weight: 700;
+  background: #e8f5e9;
+  color: var(--success);
+  font-size: .85rem;
+}
+
+.km-badge.km-medium { background: var(--warning-bg); color: var(--warning-fg); }
+.km-badge.km-high   { background: var(--danger-bg);  color: var(--danger); }
+
+.reset-note {
+  font-size: .72rem;
+  color: var(--muted);
+  margin-top: .15rem;
+}
+
+.comp-actions {
+  white-space: nowrap;
+  display: flex;
+  gap: .4rem;
+  align-items: center;
+}
+
+.no-components {
+  color: var(--muted);
+  font-size: .875rem;
+  padding: .5rem 0;
+}
+
+/* ----- Add component ----- */
+.add-component-details { margin-top: .5rem; }
+
+.add-component-details summary { list-style: none; }
+.add-component-details summary::-webkit-details-marker { display: none; }
+
+.add-component-form {
+  margin-top: .75rem;
+  background: #f9f9f9;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: .875rem 1rem;
+}
+
+.form-row {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+}
+
+.form-input {
+  flex: 1;
+  padding: .45rem .75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: .9rem;
+  outline: none;
+  transition: border-color .15s;
+}
+
+.form-input:focus { border-color: var(--strava-orange); }
+
+.form-hint {
+  font-size: .78rem;
+  color: var(--muted);
+  margin-top: .45rem;
+}
+
+/* ----- Footer ----- */
+footer {
+  text-align: center;
+  padding: 1rem;
+  font-size: .8rem;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  background: var(--card-bg);
+}
